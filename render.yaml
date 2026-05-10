@@ -6,10 +6,18 @@ services:
     plan: free
     healthCheckPath: /api-docs
     envVars:
-      - key: DATABASE_URL
+      - key: DB_HOST
         fromDatabase:
           name: clinica-turnos-db
-          property: connectionString
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: clinica-turnos-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: clinica-turnos-db
+          property: database
       - key: DATABASE_USERNAME
         fromDatabase:
           name: clinica-turnos-db
