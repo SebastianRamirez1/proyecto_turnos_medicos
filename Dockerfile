@@ -1,5 +1,5 @@
 # Stage 1: Build — contiene Maven y JDK completo
-FROM maven:3.9-eclipse-temurin-21 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # Copiamos el pom primero para aprovechar el cache de capas de Docker
@@ -11,7 +11,7 @@ COPY src ./src
 RUN mvn package -DskipTests -q
 
 # Stage 2: Runtime — imagen final liviana, solo JRE
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 COPY --from=builder /app/target/*.jar app.jar
