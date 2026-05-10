@@ -28,7 +28,7 @@ interface SpringDataTurnoRepository extends JpaRepository<Turno, UUID> {
           AND t.id <> :turnoIdExcluido
           AND t.estado NOT IN (com.clinica.turnos.domain.model.EstadoTurno.CANCELADO)
           AND t.fechaHora < :fin
-          AND FUNCTION('timestampadd', 'MINUTE', t.duracionMinutos, t.fechaHora) > :inicio
+          AND t.fechaHoraFin > :inicio
     """)
     boolean existsSolapamiento(
         @Param("medicoId") UUID medicoId,
