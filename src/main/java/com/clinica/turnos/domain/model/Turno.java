@@ -55,8 +55,17 @@ public class Turno {
     @Column(columnDefinition = "TEXT")
     private String notas;
 
+    @Column(nullable = false)
+    private LocalDateTime fechaHoraFin;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime creadoEn = LocalDateTime.now();
+
+    @PrePersist
+    @PreUpdate
+    private void calcularFechaHoraFin() {
+        this.fechaHoraFin = fechaHora.plusMinutes(duracionMinutos);
+    }
 
     // — Máquina de estados — solo las transiciones válidas están permitidas
 
@@ -89,6 +98,7 @@ public class Turno {
     }
 
     public LocalDateTime getFechaHoraFin() {
-        return fechaHora.plusMinutes(duracionMinutos);
+        return fechaHoraFin != null ? fechaHoraFin : fechaHora.plusMinutes(duracionMinutos);
     }
+
 }

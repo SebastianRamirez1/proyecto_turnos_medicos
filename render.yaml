@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: clinica-turnos-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api-docs
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: clinica-turnos-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: clinica-turnos-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: clinica-turnos-db
+          property: database
+      - key: DATABASE_USERNAME
+        fromDatabase:
+          name: clinica-turnos-db
+          property: user
+      - key: DATABASE_PASSWORD
+        fromDatabase:
+          name: clinica-turnos-db
+          property: password
+      - key: PORT
+        value: 8080
+
+databases:
+  - name: clinica-turnos-db
+    plan: free
+    databaseName: clinica_turnos
+    user: clinica_user
