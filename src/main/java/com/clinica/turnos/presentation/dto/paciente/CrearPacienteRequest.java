@@ -19,9 +19,9 @@ public record CrearPacienteRequest(
     @Size(max = 100)
     String apellido,
 
-    @Schema(example = "28456789")
+    @Schema(example = "1020395410")
     @NotBlank(message = "El DNI es obligatorio")
-    @Pattern(regexp = "^[0-9]{7,8}$", message = "El DNI debe tener entre 7 y 8 dígitos")
+    @Pattern(regexp = "^[0-9]{7,10}$", message = "El DNI debe tener entre 7 y 10 dígitos")
     String dni,
 
     @Schema(example = "maria.gonzalez@email.com")

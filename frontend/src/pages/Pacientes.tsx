@@ -42,7 +42,7 @@ function PacienteForm({
       </div>
       <label className="block text-xs font-medium text-slate-600">
         DNI
-        <input required disabled={editing} value={form.dni} onChange={set('dni')} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
+        <input required disabled={editing} inputMode="numeric" minLength={7} maxLength={10} pattern="[0-9]{7,10}" value={form.dni} onChange={set('dni')} className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100 disabled:text-slate-500" />
       </label>
       <label className="block text-xs font-medium text-slate-600">
         Email
