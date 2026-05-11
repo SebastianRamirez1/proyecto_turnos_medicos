@@ -72,6 +72,7 @@ Documentación completa en `/swagger-ui.html`.
 - Docker Desktop
 - JDK 17+
 - Maven 3.9+
+- Node.js 20+
 
 ### Pasos
 
@@ -85,6 +86,16 @@ mvn spring-boot:run
 # 3. Abrir Swagger UI
 # http://localhost:8080/swagger-ui.html
 ```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abrir `http://localhost:5173`. Para apuntar al backend local, configurar `VITE_API_URL=http://localhost:8080`.
 
 ### Variables de entorno
 
