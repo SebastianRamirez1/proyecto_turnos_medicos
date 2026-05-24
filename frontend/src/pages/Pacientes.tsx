@@ -128,11 +128,11 @@ export default function Pacientes() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Pacientes</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Pacientes</h1>
           <p className="mt-0.5 text-sm text-slate-500">{pacientes.length} pacientes activos</p>
         </div>
-        <button onClick={() => { setError(''); setModal('crear'); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700">
-          <Plus size={16} /> Nuevo paciente
+        <button onClick={() => { setError(''); setModal('crear'); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md">
+          <Plus size={16} aria-hidden="true" /> Nuevo paciente
         </button>
       </div>
 
@@ -141,7 +141,9 @@ export default function Pacientes() {
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Buscar por nombre, DNI o email..." className="w-full rounded-lg border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-blue-500" />
       </div>
 
-      {error && !modal && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && !modal && (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       <div className="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-sm">
         {loading ? <Spinner /> : filtrados.length === 0 ? (
@@ -180,11 +182,11 @@ export default function Pacientes() {
                     <td className="px-5 py-4 text-slate-600">{new Date(paciente.creadoEn).toLocaleDateString('es-CO')}</td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => { setSelected(paciente); setError(''); setModal('editar'); }} className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100" title="Editar">
-                          <Pencil size={15} />
+                        <button onClick={() => { setSelected(paciente); setError(''); setModal('editar'); }} className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100" title="Editar" aria-label={`Editar ${paciente.nombreCompleto}`}>
+                          <Pencil size={16} aria-hidden="true" />
                         </button>
-                        <button onClick={() => desactivar(paciente)} className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500" title="Desactivar">
-                          <UserX size={15} />
+                        <button onClick={() => desactivar(paciente)} className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500" title="Desactivar" aria-label={`Desactivar ${paciente.nombreCompleto}`}>
+                          <UserX size={16} aria-hidden="true" />
                         </button>
                       </div>
                     </td>
@@ -198,13 +200,13 @@ export default function Pacientes() {
 
       {modal === 'crear' && (
         <Modal title="Nuevo paciente" onClose={() => setModal(null)}>
-          {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <PacienteForm onSubmit={crear} loading={saving} />
         </Modal>
       )}
       {modal === 'editar' && selected && (
         <Modal title="Editar paciente" onClose={() => setModal(null)}>
-          {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <PacienteForm
             editing
             initial={{

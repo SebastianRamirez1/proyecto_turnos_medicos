@@ -24,12 +24,12 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-slate-100 bg-white p-5 shadow-sm">
-      <div className={`flex h-11 w-11 items-center justify-center rounded-lg ${color}`}>
-        <Icon size={22} className="text-white" />
+    <div className="flex items-center gap-4 rounded-lg border border-slate-100 bg-white p-5 shadow-sm transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-md">
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${color}`}>
+        <Icon size={22} className="text-white" aria-hidden="true" />
       </div>
       <div>
-        <p className="text-2xl font-bold text-slate-900">{value}</p>
+        <p className="text-3xl font-bold text-slate-900">{value}</p>
         <p className="text-sm text-slate-500">{label}</p>
       </div>
     </div>
@@ -76,7 +76,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-7">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
         <p className="mt-1 text-sm text-slate-500">
           {new Date().toLocaleDateString('es-CO', {
             weekday: 'long',
@@ -87,7 +87,9 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Pacientes" value={stats.pacientes} icon={Users} color="bg-blue-500" />

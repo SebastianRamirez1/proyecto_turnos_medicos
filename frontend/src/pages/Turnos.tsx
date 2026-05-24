@@ -183,13 +183,13 @@ export default function Turnos() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Turnos</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Turnos</h1>
           <p className="mt-0.5 text-sm text-slate-500">
-            {medicoActual ? `Agenda de hoy - ${medicoActual.nombreCompleto}` : 'Agenda de hoy'}
+            {medicoActual ? `Agenda de hoy — ${medicoActual.nombreCompleto}` : 'Agenda de hoy'}
           </p>
         </div>
-        <button onClick={() => { setError(''); setModal(true); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700">
-          <Plus size={16} /> Reservar turno
+        <button onClick={() => { setError(''); setModal(true); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md">
+          <Plus size={16} aria-hidden="true" /> Reservar turno
         </button>
       </div>
 
@@ -205,7 +205,9 @@ export default function Turnos() {
         </div>
       </div>
 
-      {error && !modal && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && !modal && (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       <section className="overflow-hidden rounded-lg border border-slate-100 bg-white shadow-sm">
         <div className="flex items-center gap-2 border-b border-slate-100 px-5 py-4">
@@ -256,7 +258,7 @@ export default function Turnos() {
 
       {modal && (
         <Modal title="Reservar turno" onClose={() => setModal(false)}>
-          {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <TurnoForm pacientes={pacientes} medicos={medicos} loading={saving} onSubmit={reservar} />
         </Modal>
       )}

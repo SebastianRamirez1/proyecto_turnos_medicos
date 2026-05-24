@@ -4,25 +4,28 @@ import { Calendar, LayoutDashboard, Stethoscope, Users } from 'lucide-react';
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/pacientes', label: 'Pacientes', icon: Users },
-  { to: '/medicos', label: 'Medicos', icon: Stethoscope },
+  { to: '/medicos', label: 'Médicos', icon: Stethoscope },
   { to: '/turnos', label: 'Turnos', icon: Calendar },
 ];
 
 export default function Layout() {
   return (
     <div className="min-h-screen bg-slate-100 lg:flex">
+      {/* Skip link — visible only on keyboard focus (Principio 3.4) */}
+      <a className="skip-link" href="#main-content">Saltar al contenido</a>
+
       <aside className="border-b border-slate-200 bg-white shadow-sm lg:fixed lg:inset-y-0 lg:w-64 lg:border-b-0 lg:border-r">
         <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-            <Stethoscope size={21} className="text-white" />
+            <Stethoscope size={21} className="text-white" aria-hidden="true" />
           </div>
           <div>
-            <p className="text-sm font-bold leading-tight text-slate-900">Clinica</p>
-            <p className="text-xs leading-tight text-slate-500">San Martin</p>
+            <p className="text-sm font-bold leading-tight text-slate-900">Clínica</p>
+            <p className="text-xs leading-tight text-slate-500">San Martín</p>
           </div>
         </div>
 
-        <nav className="flex gap-1 overflow-x-auto px-3 py-3 lg:block lg:space-y-1">
+        <nav aria-label="Navegación principal" className="flex gap-1 overflow-x-auto px-3 py-3 lg:block lg:space-y-1">
           {navItems.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -36,7 +39,7 @@ export default function Layout() {
                 }`
               }
             >
-              <Icon size={18} />
+              <Icon size={18} aria-hidden="true" />
               {label}
             </NavLink>
           ))}
@@ -47,7 +50,7 @@ export default function Layout() {
         </div>
       </aside>
 
-      <main className="min-w-0 flex-1 lg:ml-64">
+      <main id="main-content" className="min-w-0 flex-1 lg:ml-64">
         <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
           <Outlet />
         </div>
