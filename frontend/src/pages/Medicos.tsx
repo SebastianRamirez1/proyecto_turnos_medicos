@@ -165,11 +165,11 @@ export default function Medicos() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Medicos</h1>
-          <p className="mt-0.5 text-sm text-slate-500">{medicos.length} medicos activos</p>
+          <h1 className="text-3xl font-bold text-slate-900">Médicos</h1>
+          <p className="mt-0.5 text-sm text-slate-500">{medicos.length} médicos activos</p>
         </div>
-        <button onClick={() => { setError(''); setModal('crear'); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-blue-700">
-          <Plus size={16} /> Nuevo medico
+        <button onClick={() => { setError(''); setModal('crear'); }} className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-150 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md">
+          <Plus size={16} aria-hidden="true" /> Nuevo médico
         </button>
       </div>
 
@@ -186,7 +186,9 @@ export default function Medicos() {
         </select>
       </div>
 
-      {error && !modal && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
+      {error && !modal && (
+        <p role="alert" className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       {loading ? <Spinner /> : filtrados.length === 0 ? (
         <div className="rounded-lg border border-slate-100 bg-white py-12 text-center text-slate-400 shadow-sm">
@@ -208,11 +210,11 @@ export default function Medicos() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => { setSelected(medico); setError(''); setModal('editar'); }} className="rounded-lg p-1.5 text-slate-500 transition-colors hover:bg-slate-100" title="Editar">
-                    <Pencil size={15} />
+                  <button onClick={() => { setSelected(medico); setError(''); setModal('editar'); }} className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100" title="Editar" aria-label={`Editar ${medico.nombreCompleto}`}>
+                    <Pencil size={16} aria-hidden="true" />
                   </button>
-                  <button onClick={() => desactivar(medico)} className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500" title="Desactivar">
-                    <UserX size={15} />
+                  <button onClick={() => desactivar(medico)} className="flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500" title="Desactivar" aria-label={`Desactivar ${medico.nombreCompleto}`}>
+                    <UserX size={16} aria-hidden="true" />
                   </button>
                 </div>
               </div>
@@ -236,14 +238,14 @@ export default function Medicos() {
       )}
 
       {modal === 'crear' && (
-        <Modal title="Nuevo medico" onClose={() => setModal(null)}>
-          {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+        <Modal title="Nuevo médico" onClose={() => setModal(null)}>
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <MedicoForm onSubmit={crear} loading={saving} />
         </Modal>
       )}
       {modal === 'editar' && selected && (
-        <Modal title="Editar medico" onClose={() => setModal(null)}>
-          {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+        <Modal title="Editar médico" onClose={() => setModal(null)}>
+          {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
           <MedicoForm
             editing
             initial={{
