@@ -1,17 +1,36 @@
 import type { EstadoTurno } from '../types';
 
+/* Carbon Design System — Tags
+   Sin border-radius (inline), tipografía 12px, colores semánticos */
 const configs: Record<EstadoTurno, { label: string; className: string }> = {
-  PENDIENTE:  { label: 'Pendiente',  className: 'bg-yellow-100 text-yellow-800' },
-  CONFIRMADO: { label: 'Confirmado', className: 'bg-blue-100 text-blue-800' },
-  COMPLETADO: { label: 'Completado', className: 'bg-green-100 text-green-800' },
-  CANCELADO:  { label: 'Cancelado',  className: 'bg-red-100 text-red-800' },
-  AUSENTE:    { label: 'Ausente',    className: 'bg-slate-100 text-slate-600' },
+  PENDIENTE:  {
+    label: 'Pendiente',
+    className: 'bg-carbon-yellow-10 text-carbon-gray-100 border border-carbon-yellow-40',
+  },
+  CONFIRMADO: {
+    label: 'Confirmado',
+    className: 'bg-carbon-blue-10 text-carbon-blue-60 border border-carbon-blue-60',
+  },
+  COMPLETADO: {
+    label: 'Completado',
+    className: 'bg-carbon-green-10 text-carbon-green-50 border border-carbon-green-50',
+  },
+  CANCELADO:  {
+    label: 'Cancelado',
+    className: 'bg-carbon-red-10 text-carbon-red-60 border border-carbon-red-60',
+  },
+  AUSENTE:    {
+    label: 'Ausente',
+    className: 'bg-carbon-gray-10 text-carbon-gray-70 border border-carbon-gray-30',
+  },
 };
 
 export default function Badge({ estado }: { estado: EstadoTurno }) {
   const { label, className } = configs[estado] ?? configs.PENDIENTE;
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 text-xs font-medium ${className}`}
+    >
       {label}
     </span>
   );

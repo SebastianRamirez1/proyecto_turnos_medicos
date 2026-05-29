@@ -12,9 +12,7 @@ const emptyForm: ReservarTurnoRequest = {
 
 const estadosDestino: EstadoTurno[] = ['CONFIRMADO', 'COMPLETADO', 'AUSENTE', 'CANCELADO'];
 
-function toApiDateTime(value: string) {
-  return value.length === 16 ? `${value}:00` : value;
-}
+function toApiDateTime(v: string) { return v.length === 16 ? `${v}:00` : v; }
 
 function todayRange() {
   const today = new Date().toISOString().slice(0, 10);
@@ -22,10 +20,7 @@ function todayRange() {
 }
 
 function TurnoForm({
-  pacientes,
-  medicos,
-  loading,
-  onSubmit,
+  pacientes, medicos, loading, onSubmit,
 }: {
   pacientes: Paciente[];
   medicos: Medico[];
@@ -41,44 +36,25 @@ function TurnoForm({
       }));
 
   return (
-    <form
-      onSubmit={(e) => { e.preventDefault(); onSubmit({ ...form, fechaHora: toApiDateTime(form.fechaHora) }); }}
-      className="space-y-4"
-    >
-      <label className="ds-label">
-        Paciente
-        <select required value={form.pacienteId} onChange={set('pacienteId')} className="ds-select mt-1">
+    <form onSubmit={(e) => { e.preventDefault(); onSubmit({ ...form, fechaHora: toApiDateTime(form.fechaHora) }); }} className="space-y-5">
+      <label className="ds-label">Paciente
+        <select required value={form.pacienteId} onChange={set('pacienteId')} className="ds-select">
           <option value="">Seleccionar paciente…</option>
-          {pacientes.map((p) => (
-            <option key={p.id} value={p.id}>{p.nombreCompleto}</option>
-          ))}
+          {pacientes.map((p) => <option key={p.id} value={p.id}>{p.nombreCompleto}</option>)}
         </select>
       </label>
-
-      <label className="ds-label">
-        Médico
-        <select required value={form.medicoId} onChange={set('medicoId')} className="ds-select mt-1">
+      <label className="ds-label">Médico
+        <select required value={form.medicoId} onChange={set('medicoId')} className="ds-select">
           <option value="">Seleccionar médico…</option>
-          {medicos.map((m) => (
-            <option key={m.id} value={m.id}>{m.nombreCompleto} — {m.especialidad}</option>
-          ))}
+          {medicos.map((m) => <option key={m.id} value={m.id}>{m.nombreCompleto} — {m.especialidad}</option>)}
         </select>
       </label>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="ds-label">
-          Fecha y hora
-          <input
-            required
-            type="datetime-local"
-            value={form.fechaHora}
-            onChange={set('fechaHora')}
-            className="ds-input mt-1"
-          />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="ds-label">Fecha y hora
+          <input required type="datetime-local" value={form.fechaHora} onChange={set('fechaHora')} className="ds-input" />
         </label>
-        <label className="ds-label">
-          Duración
-          <select value={form.duracionMinutos} onChange={set('duracionMinutos')} className="ds-select mt-1">
+        <label className="ds-label">Duración
+          <select value={form.duracionMinutos} onChange={set('duracionMinutos')} className="ds-select">
             <option value={15}>15 minutos</option>
             <option value={30}>30 minutos</option>
             <option value={45}>45 minutos</option>
@@ -86,12 +62,9 @@ function TurnoForm({
           </select>
         </label>
       </div>
-
-      <label className="ds-label">
-        Motivo
-        <textarea value={form.motivo} onChange={set('motivo')} rows={3} className="ds-textarea mt-1" />
+      <label className="ds-label">Motivo
+        <textarea value={form.motivo} onChange={set('motivo')} rows={3} className="ds-textarea" />
       </label>
-
       <button type="submit" disabled={loading} className="ds-btn-primary w-full">
         {loading ? 'Reservando…' : 'Reservar turno'}
       </button>
@@ -113,12 +86,9 @@ export default function Turnos() {
   const cargarCatalogos = () => {
     setLoading(true);
     Promise.all([pacientesApi.listar(), medicosApi.listar()])
-      .then(([pacientesData, medicosData]) => {
-        setPacientes(pacientesData);
-        setMedicos(medicosData);
-        if (medicosData.length > 0) {
-          setSelectedMedico((current) => current || medicosData[0].id);
-        }
+      .then(([pd, md]) => {
+        setPacientes(pd); setMedicos(md);
+        if (md.length > 0) setSelectedMedico((c) => c || md[0].id);
       })
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : 'No se pudieron cargar los datos'),
@@ -140,12 +110,11 @@ export default function Turnos() {
   };
   useEffect(cargarAgenda, [selectedMedico]);
 
-  const medicoActual     = medicos.find((m) => m.id === selectedMedico);
-  const turnosFiltrados  = useMemo(
+  const medicoActual    = medicos.find((m) => m.id === selectedMedico);
+  const turnosFiltrados = useMemo(
     () => turnos.filter((t) =>
       `${t.pacienteNombre} ${t.medicoNombre} ${t.estado} ${t.motivo ?? ''}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
+        .toLowerCase().includes(search.toLowerCase()),
     ),
     [search, turnos],
   );
@@ -154,14 +123,10 @@ export default function Turnos() {
     setSaving(true); setError('');
     try {
       await turnosApi.reservar(data);
-      setSelectedMedico(data.medicoId);
-      setModal(false);
-      cargarAgenda();
+      setSelectedMedico(data.medicoId); setModal(false); cargarAgenda();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'No se pudo reservar el turno');
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   };
 
   const cambiarEstado = async (turno: Turno, nuevoEstado: EstadoTurno) => {
@@ -175,12 +140,11 @@ export default function Turnos() {
     if (!confirm(`¿Cancelar el turno de ${turno.pacienteNombre}?`)) return;
     setError('');
     try   { await turnosApi.cancelar(turno.id, 'Cancelado desde el panel web'); cargarAgenda(); }
-    catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cancelar el turno'); }
+    catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cancelar'); }
   };
 
   return (
     <div className="space-y-6">
-      {/* Encabezado de página */}
       <div className="ds-page-header">
         <div>
           <h1 className="ds-page-title">Turnos</h1>
@@ -188,109 +152,72 @@ export default function Turnos() {
             {medicoActual ? `Agenda de hoy — ${medicoActual.nombreCompleto}` : 'Agenda de hoy'}
           </p>
         </div>
-        <button
-          onClick={() => { setError(''); setModal(true); }}
-          className="ds-btn-primary"
-        >
+        <button onClick={() => { setError(''); setModal(true); }} className="ds-btn-primary">
           <Plus size={16} aria-hidden="true" /> Reservar turno
         </button>
       </div>
 
-      {/* Selector de médico + buscador */}
       <div className="grid gap-3 lg:grid-cols-[280px_1fr]">
-        <select
-          value={selectedMedico}
-          onChange={(e) => setSelectedMedico(e.target.value)}
-          className="ds-select"
-        >
-          {medicos.map((m) => (
-            <option key={m.id} value={m.id}>{m.nombreCompleto} — {m.especialidad}</option>
-          ))}
+        <select value={selectedMedico} onChange={(e) => setSelectedMedico(e.target.value)} className="ds-select py-3">
+          {medicos.map((m) => <option key={m.id} value={m.id}>{m.nombreCompleto} — {m.especialidad}</option>)}
         </select>
-
         <div className="relative">
-          <Search
-            size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-            aria-hidden="true"
-          />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar en la agenda…"
-            className="ds-input-search"
-          />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-carbon-gray-50" aria-hidden="true" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar en la agenda…" className="ds-input-search" />
         </div>
       </div>
 
       {error && !modal && <p role="alert" className="ds-alert-error">{error}</p>}
 
-      {/* Agenda */}
       <section className="ds-card overflow-hidden">
         <div className="ds-card-header">
-          <CalendarDays size={18} className="text-slate-500" aria-hidden="true" />
-          <h2 className="font-semibold text-slate-900">Agenda del día</h2>
+          <CalendarDays size={16} className="text-carbon-gray-70" aria-hidden="true" />
+          <h2 className="text-sm font-semibold text-carbon-gray-100">Agenda del día</h2>
         </div>
 
         {loading ? <Spinner /> : turnosFiltrados.length === 0 ? (
           <div className="ds-empty">
-            <Clock size={32} className="mx-auto mb-3 opacity-40" aria-hidden="true" />
+            <Clock size={28} className="mx-auto mb-3 opacity-30" aria-hidden="true" />
             <p>No hay turnos para mostrar</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-50">
+          <div className="divide-y divide-carbon-gray-20">
             {turnosFiltrados.map((turno) => (
               <article
                 key={turno.id}
-                className="grid gap-4 px-5 py-4 transition-colors hover:bg-slate-50
-                           lg:grid-cols-[120px_1fr_auto] lg:items-center"
+                className="grid gap-4 px-4 py-4 transition-colors hover:bg-carbon-gray-10
+                           lg:grid-cols-[100px_1fr_auto] lg:items-center"
               >
-                {/* Hora */}
                 <div>
-                  <p className="text-lg font-bold text-slate-900">
-                    {new Date(turno.fechaHora).toLocaleTimeString('es-CO', {
-                      hour: '2-digit', minute: '2-digit',
-                    })}
+                  <p className="text-lg font-semibold tabular-nums text-carbon-gray-100">
+                    {new Date(turno.fechaHora).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                   </p>
-                  <p className="text-xs text-slate-400">{turno.duracionMinutos} minutos</p>
+                  <p className="text-xs text-carbon-gray-50">{turno.duracionMinutos} min</p>
                 </div>
 
-                {/* Detalle */}
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-slate-900">{turno.pacienteNombre}</p>
+                    <p className="font-medium text-carbon-gray-100">{turno.pacienteNombre}</p>
                     <Badge estado={turno.estado} />
                   </div>
-                  <p className="mt-1 text-sm text-slate-500">{turno.motivo || 'Sin motivo registrado'}</p>
+                  <p className="mt-0.5 text-sm text-carbon-gray-70">{turno.motivo || 'Sin motivo registrado'}</p>
                 </div>
 
-                {/* Acciones */}
                 <div className="flex flex-wrap gap-2 lg:justify-end">
                   <select
                     value={turno.estado}
                     onChange={(e) => cambiarEstado(turno, e.target.value as EstadoTurno)}
-                    className="ds-select px-3 py-2 text-xs"
+                    className="ds-select py-2 px-3 text-xs"
                   >
                     <option value={turno.estado}>{turno.estado}</option>
-                    {estadosDestino
-                      .filter((e) => e !== turno.estado)
-                      .map((e) => <option key={e} value={e}>{e}</option>)
-                    }
+                    {estadosDestino.filter((e) => e !== turno.estado).map((e) => (
+                      <option key={e} value={e}>{e}</option>
+                    ))}
                   </select>
-
-                  <button
-                    onClick={() => cambiarEstado(turno, 'CONFIRMADO')}
-                    disabled={turno.estado !== 'PENDIENTE'}
-                    className="ds-btn-ghost-sm"
-                  >
+                  <button onClick={() => cambiarEstado(turno, 'CONFIRMADO')} disabled={turno.estado !== 'PENDIENTE'} className="ds-btn-ghost-sm">
                     <Check size={14} aria-hidden="true" /> Confirmar
                   </button>
-
-                  <button
-                    onClick={() => cancelar(turno)}
-                    disabled={turno.estado === 'CANCELADO' || turno.estado === 'COMPLETADO'}
-                    className="ds-btn-danger-sm"
-                  >
+                  <button onClick={() => cancelar(turno)} disabled={turno.estado === 'CANCELADO' || turno.estado === 'COMPLETADO'} className="ds-btn-danger-sm">
                     <XCircle size={14} aria-hidden="true" /> Cancelar
                   </button>
                 </div>
@@ -300,7 +227,6 @@ export default function Turnos() {
         )}
       </section>
 
-      {/* Modal */}
       {modal && (
         <Modal title="Reservar turno" onClose={() => setModal(false)}>
           {error && <p role="alert" className="ds-alert-error-sm">{error}</p>}
