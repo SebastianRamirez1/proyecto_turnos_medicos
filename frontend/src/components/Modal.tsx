@@ -7,6 +7,8 @@ interface Props {
   children: React.ReactNode;
 }
 
+/* Carbon Design System — Modal
+   Esquinas rectas, shadow pronunciada, fondo oscuro semitransparente */
 export default function Modal({ title, onClose, children }: Props) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -16,24 +18,43 @@ export default function Modal({ title, onClose, children }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      {/* Overlay */}
+      <div
+        className="absolute inset-0 bg-carbon-gray-100/60"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal container — sin border-radius */}
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col"
+        className="
+          relative flex w-full max-w-lg flex-col bg-white
+          shadow-[0_4px_16px_rgba(0,0,0,0.4)]
+          max-h-[90vh]
+        "
       >
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 id="modal-title" className="text-lg font-semibold text-slate-800">{title}</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-carbon-gray-20 px-6 py-4">
+          <h2
+            id="modal-title"
+            className="text-base font-semibold text-carbon-gray-100"
+          >
+            {title}
+          </h2>
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-slate-100 text-slate-500 transition-colors hover:-translate-y-px"
+            className="flex h-11 w-11 items-center justify-center text-carbon-gray-70 transition-colors hover:bg-carbon-gray-10"
           >
-            <X size={18} aria-hidden="true" />
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
-        <div className="overflow-y-auto flex-1 px-6 py-5">
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5">
           {children}
         </div>
       </div>
