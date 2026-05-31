@@ -4,6 +4,7 @@ import { medicosApi, pacientesApi, turnosApi } from '../api';
 import Badge from '../components/Badge';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
+import Toast from '../components/Toast';
 import type { EstadoTurno, Medico, Paciente, ReservarTurnoRequest, Turno } from '../types';
 
 const emptyForm: ReservarTurnoRequest = {
@@ -12,11 +13,16 @@ const emptyForm: ReservarTurnoRequest = {
 
 const estadosDestino: EstadoTurno[] = ['CONFIRMADO', 'COMPLETADO', 'AUSENTE', 'CANCELADO'];
 
-function toApiDateTime(v: string) { return v.length === 16 ? `${v}:00` : v; }
+/** Convierte el datetime-local (hora local) a UTC ISO para el backend. */
+function toApiDateTime(v: string) {
+  return new Date(v).toISOString().slice(0, 19);
+}
 
-function todayRange() {
-  const today = new Date().toISOString().slice(0, 10);
-  return { desde: `${today}T00:00:00`, hasta: `${today}T23:59:59` };
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+
+function formatDateLabel(dateStr: string) {
+  const d = new Date(`${dateStr}T00:00:00`);
+  return d.toLocaleDateString('es-CO', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 function TurnoForm({
@@ -77,11 +83,13 @@ export default function Turnos() {
   const [medicos,        setMedicos]        = useState<Medico[]>([]);
   const [turnos,         setTurnos]         = useState<Turno[]>([]);
   const [selectedMedico, setSelectedMedico] = useState('');
+  const [selectedDate,   setSelectedDate]   = useState(todayStr);
   const [search,         setSearch]         = useState('');
   const [loading,        setLoading]        = useState(true);
   const [saving,         setSaving]         = useState(false);
   const [modal,          setModal]          = useState(false);
   const [error,          setError]          = useState('');
+  const [toast,          setToast]          = useState('');
 
   const cargarCatalogos = () => {
     setLoading(true);
@@ -99,16 +107,15 @@ export default function Turnos() {
 
   const cargarAgenda = () => {
     if (!selectedMedico) { setTurnos([]); return; }
-    const { desde, hasta } = todayRange();
     setLoading(true);
-    turnosApi.agenda(selectedMedico, desde, hasta)
+    turnosApi.agenda(selectedMedico, `${selectedDate}T00:00:00`, `${selectedDate}T23:59:59`)
       .then((data) => setTurnos(data.sort((a, b) => a.fechaHora.localeCompare(b.fechaHora))))
       .catch((err: unknown) =>
         setError(err instanceof Error ? err.message : 'No se pudo cargar la agenda'),
       )
       .finally(() => setLoading(false));
   };
-  useEffect(cargarAgenda, [selectedMedico]);
+  useEffect(cargarAgenda, [selectedMedico, selectedDate]);
 
   const medicoActual    = medicos.find((m) => m.id === selectedMedico);
   const turnosFiltrados = useMemo(
@@ -123,24 +130,38 @@ export default function Turnos() {
     setSaving(true); setError('');
     try {
       await turnosApi.reservar(data);
-      setSelectedMedico(data.medicoId); setModal(false); cargarAgenda();
+      setSelectedMedico(data.medicoId);
+      setModal(false);
+      setToast('Turno reservado exitosamente');
+      cargarAgenda();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'No se pudo reservar el turno');
+      const msg = err instanceof Error ? err.message : '';
+      setError(
+        msg.toLowerCase().includes('inválid') || msg.toLowerCase().includes('invalid')
+          ? 'La fecha y hora debe ser futura y no superponerse con otro turno'
+          : msg || 'No se pudo reservar el turno',
+      );
     } finally { setSaving(false); }
   };
 
   const cambiarEstado = async (turno: Turno, nuevoEstado: EstadoTurno) => {
     if (nuevoEstado === turno.estado) return;
     setError('');
-    try   { await turnosApi.cambiarEstado(turno.id, nuevoEstado); cargarAgenda(); }
-    catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cambiar el estado'); }
+    try {
+      await turnosApi.cambiarEstado(turno.id, nuevoEstado);
+      setToast(`Estado actualizado a ${nuevoEstado}`);
+      cargarAgenda();
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cambiar el estado'); }
   };
 
   const cancelar = async (turno: Turno) => {
     if (!confirm(`¿Cancelar el turno de ${turno.pacienteNombre}?`)) return;
     setError('');
-    try   { await turnosApi.cancelar(turno.id, 'Cancelado desde el panel web'); cargarAgenda(); }
-    catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cancelar'); }
+    try {
+      await turnosApi.cancelar(turno.id, 'Cancelado desde el panel web');
+      setToast('Turno cancelado');
+      cargarAgenda();
+    } catch (err: unknown) { setError(err instanceof Error ? err.message : 'No se pudo cancelar'); }
   };
 
   return (
@@ -149,7 +170,7 @@ export default function Turnos() {
         <div>
           <h1 className="ds-page-title">Turnos</h1>
           <p className="ds-page-subtitle">
-            {medicoActual ? `Agenda de hoy — ${medicoActual.nombreCompleto}` : 'Agenda de hoy'}
+            {medicoActual ? `${medicoActual.nombreCompleto} — ${formatDateLabel(selectedDate)}` : formatDateLabel(selectedDate)}
           </p>
         </div>
         <button onClick={() => { setError(''); setModal(true); }} className="ds-btn-primary">
@@ -157,7 +178,7 @@ export default function Turnos() {
         </button>
       </div>
 
-      <div className="grid gap-3 lg:grid-cols-[280px_1fr]">
+      <div className="grid gap-3 lg:grid-cols-[280px_1fr_auto]">
         <select value={selectedMedico} onChange={(e) => setSelectedMedico(e.target.value)} className="ds-select py-3">
           {medicos.map((m) => <option key={m.id} value={m.id}>{m.nombreCompleto} — {m.especialidad}</option>)}
         </select>
@@ -165,6 +186,13 @@ export default function Turnos() {
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-carbon-gray-50" aria-hidden="true" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar en la agenda…" className="ds-input-search" />
         </div>
+        <input
+          type="date"
+          value={selectedDate}
+          onChange={(e) => setSelectedDate(e.target.value)}
+          className="ds-input py-3"
+          aria-label="Seleccionar fecha de la agenda"
+        />
       </div>
 
       {error && !modal && <p role="alert" className="ds-alert-error">{error}</p>}
@@ -172,7 +200,7 @@ export default function Turnos() {
       <section className="ds-card overflow-hidden">
         <div className="ds-card-header">
           <CalendarDays size={16} className="text-carbon-gray-70" aria-hidden="true" />
-          <h2 className="text-sm font-semibold text-carbon-gray-100">Agenda del día</h2>
+          <h2 className="text-sm font-semibold text-carbon-gray-100">Agenda — {formatDateLabel(selectedDate)}</h2>
         </div>
 
         {loading ? <Spinner /> : turnosFiltrados.length === 0 ? (
@@ -190,7 +218,7 @@ export default function Turnos() {
               >
                 <div>
                   <p className="text-lg font-semibold tabular-nums text-carbon-gray-100">
-                    {new Date(turno.fechaHora).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(turno.fechaHora + 'Z').toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}
                   </p>
                   <p className="text-xs text-carbon-gray-50">{turno.duracionMinutos} min</p>
                 </div>
@@ -233,6 +261,8 @@ export default function Turnos() {
           <TurnoForm pacientes={pacientes} medicos={medicos} loading={saving} onSubmit={reservar} />
         </Modal>
       )}
+
+      {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </div>
   );
 }
