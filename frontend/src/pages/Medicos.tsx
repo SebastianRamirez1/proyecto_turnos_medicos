@@ -3,6 +3,7 @@ import { Pencil, Plus, Search, Stethoscope, UserX } from 'lucide-react';
 import { medicosApi } from '../api';
 import Modal from '../components/Modal';
 import Spinner from '../components/Spinner';
+import Toast from '../components/Toast';
 import type { ActualizarMedicoRequest, CrearMedicoRequest, Medico } from '../types';
 
 const ESPECIALIDADES = [
@@ -69,6 +70,7 @@ export default function Medicos() {
   const [modal,        setModal]        = useState<null | 'crear' | 'editar'>(null);
   const [selected,     setSelected]     = useState<Medico | null>(null);
   const [error,        setError]        = useState('');
+  const [toast,        setToast]        = useState('');
 
   const cargar = () => {
     setLoading(true);
@@ -94,7 +96,7 @@ export default function Medicos() {
 
   const crear = async (data: CrearMedicoRequest) => {
     setSaving(true); setError('');
-    try   { await medicosApi.crear(data); setModal(null); cargar(); }
+    try   { await medicosApi.crear(data); setModal(null); setToast('Médico creado exitosamente'); cargar(); }
     catch (err: unknown) { setError(err instanceof Error ? err.message : 'Error al guardar'); }
     finally { setSaving(false); }
   };
@@ -106,7 +108,7 @@ export default function Medicos() {
       especialidad: data.especialidad, email: data.email, telefono: data.telefono,
     };
     setSaving(true); setError('');
-    try   { await medicosApi.actualizar(selected.id, payload); setModal(null); cargar(); }
+    try   { await medicosApi.actualizar(selected.id, payload); setModal(null); setToast('Médico actualizado'); cargar(); }
     catch (err: unknown) { setError(err instanceof Error ? err.message : 'Error al guardar'); }
     finally { setSaving(false); }
   };
@@ -200,6 +202,8 @@ export default function Medicos() {
           <MedicoForm editing initial={{ nombre: selected.nombre, apellido: selected.apellido, matricula: selected.matricula, especialidad: selected.especialidad, email: selected.email, telefono: selected.telefono ?? '' }} onSubmit={editar} loading={saving} />
         </Modal>
       )}
+
+      {toast && <Toast message={toast} onDismiss={() => setToast('')} />}
     </div>
   );
 }
