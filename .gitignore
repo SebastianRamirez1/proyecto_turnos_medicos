@@ -18,9 +18,10 @@ target/
 *.log
 logs/
 
-# Entorno
+# Entorno — NUNCA subir credenciales
 .env
 *.env.local
+.env.production
 
 # OS
 .DS_Store
@@ -28,3 +29,7 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Claude Code — worktrees y archivos internos
+.claude/worktrees/
+.claire/
